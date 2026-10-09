@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace BoardGameApp1.Models.Domail
+namespace BoardGameApp1.Data.Domail
 {
     public class Creators
     {

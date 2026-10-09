@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace BoardGameApp1.Models.Domail
+namespace BoardGameApp1.Data.Domail
 {
     public class Sellers
     {
