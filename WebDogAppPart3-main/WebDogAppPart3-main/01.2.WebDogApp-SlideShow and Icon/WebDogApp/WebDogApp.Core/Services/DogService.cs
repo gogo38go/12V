@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.EntityFrameworkCore;
+
 using WebDogApp.Infrastructure.Data;
 using WebDogApp.Infrastructure.Data.Domain;
 
@@ -34,28 +36,72 @@ namespace WebDogApp.Core.Services
 
         public Dog GetDogById(int dogId)
         {
-            return _context.Dogs.Find(dogId);
+            return _context.Dogs
+                .Include(d => d.Breed)
+                .FirstOrDefault(d => d.Id == dogId);
         }
 
         public List<Dog> GetDogs()
         {
-            List<Dog> dogs = _context.Dogs.ToList();
+            List<Dog> dogs = _context.Dogs
+                .Include(d => d.Breed)
+                .ToList();
+
             return dogs;
         }
 
         public List<Dog> GetDogs(string searchStringBreed, string searchStringName)
         {
-            throw new NotImplementedException();
+            var dogs = _context.Dogs
+                .Include(d => d.Breed)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchStringBreed))
+            {
+                dogs = dogs.Where(d =>
+                    d.Breed.Name.Contains(searchStringBreed));
+            }
+
+            if (!string.IsNullOrEmpty(searchStringName))
+            {
+                dogs = dogs.Where(d =>
+                    d.Name.Contains(searchStringName));
+            }
+
+            return dogs.ToList();
         }
 
         public bool RemoveById(int dogId)
         {
-            throw new NotImplementedException();
+            Dog dog = _context.Dogs.Find(dogId);
+
+            if (dog == null)
+            {
+                return false;
+            }
+
+            _context.Dogs.Remove(dog);
+
+            return _context.SaveChanges() != 0;
         }
 
         public bool UpdateDog(int dogId, string name, int age, int breedId, string picture)
         {
-            throw new NotImplementedException();
+            Dog dog = _context.Dogs.Find(dogId);
+
+            if (dog == null)
+            {
+                return false;
+            }
+
+            dog.Name = name;
+            dog.Age = age;
+            dog.Breed = _context.Breeds.Find(breedId);
+            dog.Picture = picture;
+
+            _context.Dogs.Update(dog);
+
+            return _context.SaveChanges() != 0;
         }
     }
 }
